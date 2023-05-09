@@ -6,7 +6,7 @@ app.use(express.json())
 
 app.use('/api/topics', topicsRouter)
 
-app.use((req, res, next) => {
+app.all('*', (req, res, next) => {
     err = {status: 404, msg: 'Not Found'}
     next(err)
 })
