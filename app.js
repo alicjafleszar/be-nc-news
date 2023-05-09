@@ -7,8 +7,8 @@ app.use(express.json())
 app.use('/api/topics', topicsRouter)
 
 app.use((req, res, next) => {
-    res.status(404).send({msg: 'Not Found'})
-    return next(err)
+    err = {status: 404, msg: 'Not Found'}
+    next(err)
 })
 
 app.use((err, req, res, next) => {
