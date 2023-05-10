@@ -1,7 +1,7 @@
-const { selectEndpointsInfo } = require("../models")
+const fs = require('fs/promises')
 
 exports.getEndpointsInfo = (req, res, next) => {
-    selectEndpointsInfo()
-        .then(endpoints => res.status(200).send({ endpoints }))
+    return fs.readFile(`./endpoints.json`)
+        .then(endpoints => res.status(200).send({ endpoints: JSON.parse(endpoints) }))
         .catch(err => next(err))
 }
