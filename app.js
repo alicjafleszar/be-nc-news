@@ -1,10 +1,17 @@
 const express = require('express')
 const topicsRouter = require('./topics')
+const { getEndpointsInfo } = require('./controllers')
 
 const app = express()
 app.use(express.json())
 
-app.use('/api/topics', topicsRouter)
+const router = express.Router()
+
+app.use('/api', router)
+
+router.get('/', getEndpointsInfo)
+
+router.use('/topics', topicsRouter)
 
 app.all('*', (req, res, next) => {
     err = {status: 404, msg: 'Not Found'}
