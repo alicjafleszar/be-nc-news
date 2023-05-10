@@ -36,8 +36,6 @@ describe('API tests', () => {
             })
         })
     })
-    /********* Task 3.5 *********/
-
     describe('/api', () => {
         describe('GET - status 200 - responds with an array endpoint objects', () => {
             test('responds with an object containing API endpoints as properties holding an object with `description`, `queries`, `bodyFormat` and `exampleResponse` properties', () => {
