@@ -1,4 +1,4 @@
 const { selectTopics } = require("./topics.models");
-const { selectArticleById, selectArticles } = require("./articles.models");
+const { selectArticleById, selectArticles, selectCommentsByArticleId } = require("./articles.models");
 
-module.exports = { selectTopics, selectArticles, selectArticleById }
+module.exports = { selectTopics, selectArticles, selectArticleById, selectCommentsByArticleId }

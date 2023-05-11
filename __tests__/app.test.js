@@ -118,12 +118,54 @@ describe('GET requests', () => {
             })
         })
     })
+    describe('/api/articles/:article_id/comments', () => {
+        describe('GET - status 200 - responds with an array of comment objects', () => {
+            test('responds with an array of comments for the given article_id of which each comment should have "comment_id", "votes", "created_at", "author", "body" and "article_id" properties', () => {
+                return request(app)
+                    .get('/api/articles/1/comments')
+                    .expect(200)
+                    .then(({ body: { comments } }) => {
+                        comments.forEach(comment => {
+                            expect(comment).toMatchObject(
+                                expect.objectContaining({
+                                    comment_id: expect.any(Number),
+                                    votes: expect.any(Number),
+                                    created_at: expect.any(String),
+                                    author: expect.any(String),
+                                    body: expect.any(String),
+                                    article_id: expect.any(Number)
+                                })
+                            )
+                        })
+                    })
+            })
+            test('responds with an empty array if there is no comments referencing valid article', () => {
+                return request(app)
+                    .get('/api/articles/2/comments')
+                    .expect(200)
+                    .then(({ body: { comments } }) => {
+                        expect(comments).toEqual([])
+                    })
+            })
+            test('responds with an array that is sorted by creation date in descending order', () => {
+                return request(app)
+                    .get('/api/articles/1/comments')
+                    .expect(200)
+                    .then(({ body: { comments } }) => {
+                        expect(comments).toBeSorted({
+                            key: 'created_at',
+                            descending: true
+                        })
+                    })
+            })
+        })
+    })
 })
 
 describe('Error handling tests', () => {
     describe('/*', () => {
         describe('GET - status 404 - invalid path', () => {
-            test('responds with 404 error code and an error message if request was made to invalid route', () => {
+            test('/api/notARoute - responds with 404 error code and an error message if request was made to invalid route', () => {
                 return request(app)
                     .get('/api/notARoute')
                     .expect(404)
@@ -131,26 +173,50 @@ describe('Error handling tests', () => {
                         expect(msg).toBe('Not Found')
                     })
             })
-        })
-    })
-    describe('/api/articles/:article_id', () => {
-        describe('GET - status 404 - id not found', () => {
-            test('responds with 404 erroor code and error message if requested article id was not found', () => {
+            test('/api/articles/:article_id/notARoute - responds with 404 error code and an error message if request was made to invalid route', () => {
                 return request(app)
-                    .get('/api/articles/14')
+                    .get('/api/articles/:article_id/notARoute')
                     .expect(404)
                     .then(({ body: { msg } }) => {
-                        expect(msg).toBe('Article ID Not Found')
+                        expect(msg).toBe('Not Found')
                     })
             })
         })
-        describe('GET - status 400 - invalid id', () => {
-            test('responds with 400 error code and error message if request was invalid', () => {
+    })
+    describe('/api/articles/:article_id/*', () => {
+        describe('Status 404 - article ID not found', () => {
+            test('GET - / - responds with 404 erroor code and error message if requested article id was not found', () => {
+                return request(app)
+                    .get('/api/articles/204')
+                    .expect(404)
+                    .then(({ body: { msg } }) => {
+                        expect(msg).toBe('Not Found')
+                    })
+            })
+            test('GET - /comments - responds with 404 erroor code and error message if requested article ID was not found', () => {
+                return request(app)
+                    .get('/api/articles/16/comments')
+                    .expect(404)
+                    .then(({ body: { msg } }) => {
+                        expect(msg).toBe('Not Found')
+                    })
+            })
+        })
+        describe('Status 400 - invalid article ID', () => {
+            test('GET - / - responds with 400 error code and error message if request was invalid', () => {
                 return request(app)
                     .get('/api/articles/art3')
                     .expect(400)
                     .then(({ body: { msg } }) => {
-                        expect(msg).toBe('Invalid Article ID')
+                        expect(msg).toBe('Invalid Request')
+                    })
+            })
+            test('GET - /comments - responds responds with 400 error code and error message if requested article ID was invalid', () => {
+                return request(app)
+                    .get('/api/articles/art3/comments')
+                    .expect(400)
+                    .then(({ body: { msg } }) => {
+                        expect(msg).toBe('Invalid Request')
                     })
             })
         })
