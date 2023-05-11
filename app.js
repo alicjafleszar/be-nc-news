@@ -1,5 +1,6 @@
 const express = require('express')
 const topicsRouter = require('./topics')
+const articlesRouter = require('./articles')
 const { getEndpointsInfo } = require('./controllers')
 
 const app = express()
@@ -12,6 +13,8 @@ app.use('/api', router)
 router.get('/', getEndpointsInfo)
 
 router.use('/topics', topicsRouter)
+
+router.use('/articles', articlesRouter)
 
 app.all('*', (req, res, next) => {
     err = {status: 404, msg: 'Not Found'}
