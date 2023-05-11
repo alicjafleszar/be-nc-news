@@ -3,6 +3,7 @@ const seed = require('../db/seeds/seed')
 const app = require('../app')
 const testData = require('../db/data/test-data/')
 const request = require('supertest')
+require('jest-sorted');
 
 beforeEach(() => seed(testData))
 afterAll(() => db.end())
@@ -59,6 +60,45 @@ describe('GET requests', () => {
             })
         })
     })
+    describe('/api/articles', () => {
+        describe('GET - status 200 - responds with an array of article objects', () => {
+            test('responds with an array of objects, each of them containing "author", "title", "article_id", "topic", "created_at", "votes", "article_img_url" and "comment_count" but not including "body" property', () => {
+                return request(app)
+                    .get('/api/articles')
+                    .expect(200)
+                    .then(({ body: { articles } }) => {
+                        articles.forEach(article => {
+                            expect(article).toMatchObject(
+                                expect.objectContaining({
+                                    "article_id": expect.any(Number),
+                                    "author": expect.any(String),
+                                    "title": expect.any(String),
+                                    "topic": expect.any(String),
+                                    "created_at": expect.any(String),
+                                    "votes": expect.any(Number),
+                                    "article_img_url": expect.any(String),
+                                    "comment_count": expect.any(Number)
+                                })
+                            )
+                            expect(article).not.toHaveProperty('body')
+                        })
+                    })
+            })
+        })
+        describe('GET - status 200 - accepts queries', () => {
+            test('sorts articles by date in descending order by default', () => {
+                return request(app)
+                    .get('/api/articles/')
+                    .expect(200)
+                    .then(({ body: { articles } }) => {
+                        expect(articles).toBeSorted({
+                            key: 'created_at',
+                            descending: true
+                        })
+                    })
+            })
+        })
+    })
     describe('/api/articles/:article_id', () => {
         describe('GET - status 200 - responds with a single object', () => {
             test('responds with an object with article_id matching requested id parameter', () => {
@@ -81,7 +121,7 @@ describe('GET requests', () => {
 })
 
 describe('Error handling tests', () => {
-    describe('/api', () => {
+    describe('/*', () => {
         describe('GET - status 404 - invalid path', () => {
             test('responds with 404 error code and an error message if request was made to invalid route', () => {
                 return request(app)
