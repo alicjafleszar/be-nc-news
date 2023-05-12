@@ -11,7 +11,7 @@ afterAll(() => db.end())
 describe('GET requests', () => {
     describe('/api', () => {
         describe('GET - status 200 - responds with an array endpoint objects', () => {
-            test('responds with an object containing API endpoints as properties holding an object with `description`, `queries`, `bodyFormat` and `exampleResponse` properties', () => {
+            test('responds with an object containing API endpoints as properties holding an object with "description", "queries", "bodyFormat" and "exampleResponse" properties', () => {
                 return request(app)
                     .get('/api')
                     .expect(200)
@@ -43,7 +43,7 @@ describe('GET requests', () => {
                         topics.forEach(topic => expect(typeof topic).toBe('object'))
                     })
             })
-            test('each object in returned array has `slug` and `description` properties', () => {
+            test('each object in returned array has "slug" and "description" properties', () => {
                 return request(app)
                     .get('/api/topics')
                     .expect(200)
@@ -164,6 +164,55 @@ describe('GET requests', () => {
     })
 })
 
+describe('POST requests', () =>{
+    describe('/api/articles/:article_id/comments', () => {
+        describe('POST - status 201 - responds with added comment', () => {
+            test('responds with a posted comment if request body is provided an object with username and body properties', () => {
+                const newComment = {
+                    "username": "lurker",
+                    "body": "cool article"
+                }
+                return request(app)
+                    .post('/api/articles/5/comments')
+                    .send(newComment)
+                    .expect(201)
+                    .then(({ body: { comment } }) => {
+                        expect(comment).toMatchObject(expect.objectContaining({
+                            comment_id: 19,
+                            body: "cool article",
+                            votes: 0,
+                            author: "lurker",
+                            article_id: 5,
+                            created_at: expect.any(String)
+                        }))
+                    })
+            })
+            test('adds a new comment to comments table', () => {
+                const newComment = {
+                    "username": "lurker",
+                    "body": "cool article"
+                }
+                return request(app)
+                    .post('/api/articles/5/comments')
+                    .send(newComment)
+                    .expect(201)
+                    .then(({ body: { comment } }) => {
+                        return request(app)
+                            .get('/api/articles/5/comments')
+                            .expect(200)
+                            .then(({ body: { comments } }) => {
+                                expect(comments).toEqual(
+                                    expect.arrayContaining([
+                                        comment
+                                    ])
+                                )
+                        })
+                })
+            })
+        })
+    })
+})
+
 describe('Error handling tests', () => {
     describe('/*', () => {
         describe('GET - status 404 - invalid path', () => {
@@ -203,6 +252,18 @@ describe('Error handling tests', () => {
                         expect(msg).toBe('Not Found')
                     })
             })
+            test('POST - /comments - responds with 404 error code and error message if requested article ID was not found', () => {
+                return request(app)
+                    .post('/api/articles/120/comments')
+                    .send({
+                        "username": "lurker",
+                        "body": "cool article"
+                    })
+                    .expect(404)
+                    .then(({ body: { msg } }) => {
+                        expect(msg).toBe('Not Found')
+                    })
+            })
         })
         describe('Status 400 - invalid article ID', () => {
             test('GET - / - responds with 400 error code and error message if request was invalid', () => {
@@ -219,6 +280,56 @@ describe('Error handling tests', () => {
                     .expect(400)
                     .then(({ body: { msg } }) => {
                         expect(msg).toBe('Invalid Request')
+                    })
+            })
+            test('POST - /comments - responds responds with 400 error code and error message if requested article ID was invalid', () => {
+                return request(app)
+                    .post('/api/articles/art5/comments')
+                    .send({
+                        "username": "lurker",
+                        "body": "cool article"
+                    })
+                    .expect(400)
+                    .then(({ body: { msg } }) => {
+                        expect(msg).toBe('Invalid Request')
+                    })
+            })
+        })
+    })
+    describe('/api/articles/:article_id/comments', () => {
+        describe('POST - status 400 - invalid request body', () => {
+            test('responds with 400 erroor code and error message if provided body of the request does not contain username and/or body property value', () => {
+                return request(app)
+                    .post('/api/articles/3/comments')
+                    .send({
+                        "username": "lurker",
+                        "body": null
+                    })
+                    .expect(400)
+                    .then(({ body: { msg: noBodyMsg } }) => {
+                        return request(app)
+                            .post('/api/articles/3/comments')
+                            .send({
+                                "username": null,
+                                "body": "cool article"
+                            })
+                            .expect(400)
+                            .then(({ body: { msg: noUserMsg } }) => {
+                                expect(noBodyMsg).toBe('Invalid Request')
+                                expect(noUserMsg).toBe('Invalid Request')
+                            })
+                    })
+            })
+            test('responds with 404 error code and error message if provided username does not exists', () => {
+                return request(app)
+                    .post('/api/articles/3/comments')
+                    .send({
+                        "username": "deletedAccount",
+                        "body": "cool article"
+                    })
+                    .expect(404)
+                    .then(({ body: { msg } }) => {
+                        expect(msg).toBe('Not Found')
                     })
             })
         })

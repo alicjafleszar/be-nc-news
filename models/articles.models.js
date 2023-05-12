@@ -1,4 +1,5 @@
 const db = require('../db/connection')
+const format = require('pg-format');
 const { checkIfExists } = require('../utils/utils')
 
 exports.selectArticleById = (article_id) => {
@@ -35,4 +36,15 @@ exports.selectCommentsByArticleId = (article_id) => {
             [ article_id ]
         )
     ]).then(([exists, { rows }]) => rows)
+}
+
+exports.insertComment = ({ username, body }, article_id) => {
+    const insertCommentQueryStr = format(
+        `INSERT INTO comments (body, article_id, author) VALUES %L RETURNING *;`,
+        [[ body, article_id, username ]]
+        )
+    return Promise.all([
+        checkIfExists('articles', 'article_id', article_id),
+        db.query(insertCommentQueryStr)
+    ]).then(([exists, { rows }]) => rows[0])
 }
