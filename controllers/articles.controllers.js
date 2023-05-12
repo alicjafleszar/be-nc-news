@@ -1,4 +1,4 @@
-const { selectArticles, selectArticleById, selectCommentsByArticleId } = require('../models')
+const { selectArticles, selectArticleById, selectCommentsByArticleId, insertComment } = require('../models')
 
 exports.getArticleById = (req, res, next) => {
     const { article_id } = req.params
@@ -17,5 +17,13 @@ exports.getCommentsByArticleId = (req, res, next) => {
     const { article_id } = req.params
     selectCommentsByArticleId(article_id)
         .then(comments => res.status(200).send({ comments }))
+        .catch(err => next(err))
+}
+
+exports.postComment = (req, res, next) => {
+    const newCommentData = req.body
+    const { article_id } = req.params
+    insertComment(newCommentData, article_id)
+        .then(comment => res.status(201).send({ comment }))
         .catch(err => next(err))
 }
