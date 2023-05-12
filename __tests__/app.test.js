@@ -187,6 +187,27 @@ describe('POST requests', () =>{
                         }))
                     })
             })
+            test('ignores unnecessary properties on request body object', () => {
+                const newComment = {
+                    "username": "lurker",
+                    "body": "cool article",
+                    "votes": 300
+                }
+                return request(app)
+                    .post('/api/articles/5/comments')
+                    .send(newComment)
+                    .expect(201)
+                    .then(({ body: { comment } }) => {
+                        expect(comment).toMatchObject(expect.objectContaining({
+                            comment_id: 19,
+                            body: "cool article",
+                            votes: 0,
+                            author: "lurker",
+                            article_id: 5,
+                            created_at: expect.any(String)
+                        }))
+                    })
+            })
             test('adds a new comment to comments table', () => {
                 const newComment = {
                     "username": "lurker",
