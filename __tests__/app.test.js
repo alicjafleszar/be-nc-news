@@ -89,7 +89,7 @@ describe('GET requests', () => {
         describe('GET - status 200 - accepts queries', () => {
             test('sorts articles by date in descending order by default', () => {
                 return request(app)
-                    .get('/api/articles/')
+                    .get('/api/articles')
                     .expect(200)
                     .then(({ body: { articles } }) => {
                         expect(articles).toBeSorted({
@@ -234,6 +234,69 @@ describe('POST requests', () =>{
     })
 })
 
+describe('PATCH requests', () => {
+    describe('/api/articles/:article_id', () => {
+        describe('PATCH - status 201 - responds with updated article', () => {
+            test('responds with the updated article if request body contains an object with inc_votes property holding a number', () => {
+                return request(app)
+                    .patch('/api/articles/3')
+                    .send({ inc_votes: 5 })
+                    .expect(201)
+                    .then(({ body: { article } }) => {
+                        expect(article).toMatchObject(expect.objectContaining({
+                            article_id: 3,
+                            title: 'Eight pug gifs that remind me of mitch',
+                            topic: 'mitch',
+                            author: 'icellusedkars',
+                            body: 'some gifs',
+                            created_at: expect.any(String),
+                            votes: 5,
+                            article_img_url: 'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700'
+                        }))
+                    })
+            })
+            test('updates the votes property for chosen article', () => {
+                return request(app)
+                    .patch('/api/articles/3')
+                    .send({ inc_votes: 5 })
+                    .expect(201)
+                    .then(({ body: { article: update } }) => {
+                        return request(app)
+                            .get('/api/articles/3')
+                            .expect(200)
+                            .then(({ body: { article: updatedArticle } }) => {
+                                expect(updatedArticle).toEqual(update)
+                        })
+                })
+            })
+            test('responds with unchanged article object if there is no "inc_votes" property on request body object, and ignores not required properties', () => {
+                return request(app)
+                    .patch('/api/articles/3')
+                    .send({ title: 'New Title' })
+                    .expect(200)
+                    .then(({ body: { article: update } }) => {
+                        return request(app)
+                            .get('/api/articles/3')
+                            .expect(200)
+                            .then(({ body: { article: unchangedArticle } }) => {
+                                expect(unchangedArticle).toEqual(update)
+                                expect(unchangedArticle).toMatchObject(expect.objectContaining({
+                                    article_id: 3,
+                                    title: 'Eight pug gifs that remind me of mitch',
+                                    topic: 'mitch',
+                                    author: 'icellusedkars',
+                                    body: 'some gifs',
+                                    created_at: expect.any(String),
+                                    votes: 0,
+                                    article_img_url: 'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700'
+                                }))
+                        })
+                })
+            })
+        })
+    })
+})
+
 describe('Error handling tests', () => {
     describe('/*', () => {
         describe('GET - status 404 - invalid path', () => {
@@ -313,6 +376,26 @@ describe('Error handling tests', () => {
                     .expect(400)
                     .then(({ body: { msg } }) => {
                         expect(msg).toBe('Invalid Request')
+                    })
+            })
+        })
+    })
+    describe('/api/articles/:article_id', () => {
+        describe('PATCH - status 400 - invalid request body', () => {
+            test('responds with 400 error code and error message if inc_votes property\'s value is null or not a number', () => {
+                return request(app)
+                    .patch('/api/articles/3')
+                    .send({ inc_votes: 'add 1 vote' })
+                    .expect(400)
+                    .then(({ body: { msg: NaNMsg } }) => {
+                            return request(app)
+                            .patch('/api/articles/3')
+                            .send({ inc_votes: null })
+                            .expect(400)
+                            .then(({ body: { msg: nullMsg } }) => {
+                                expect(NaNMsg).toBe('Invalid Request')
+                                expect(nullMsg).toBe('Invalid Request')
+                        })
                     })
             })
         })

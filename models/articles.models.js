@@ -48,3 +48,15 @@ exports.insertComment = ({ username, body }, article_id) => {
         db.query(insertCommentQueryStr)
     ]).then(([exists, { rows }]) => rows[0])
 }
+
+exports.updateArticle = (inc_votes, article_id) => {
+    const propExists = inc_votes || inc_votes === null
+    const queryStr = propExists 
+        ? `UPDATE articles SET votes = $1 WHERE article_id = ${article_id} RETURNING *;` 
+        : `SELECT * FROM articles WHERE article_id = ${article_id};`
+    const value = propExists ? [inc_votes] : []
+    return Promise.all([
+        checkIfExists('articles', 'article_id', article_id),
+        db.query(queryStr, value)
+    ]).then(([ exists, { rows } ]) => rows[0])
+}
