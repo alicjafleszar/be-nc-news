@@ -67,6 +67,7 @@ describe('GET requests', () => {
                     .get('/api/articles')
                     .expect(200)
                     .then(({ body: { articles } }) => {
+                        expect(articles).toHaveLength(12)
                         articles.forEach(article => {
                             expect(article).toMatchObject(
                                 expect.objectContaining({
@@ -125,6 +126,7 @@ describe('GET requests', () => {
                     .get('/api/articles/1/comments')
                     .expect(200)
                     .then(({ body: { comments } }) => {
+                        expect(comments).toHaveLength(11)
                         comments.forEach(comment => {
                             expect(comment).toMatchObject(
                                 expect.objectContaining({

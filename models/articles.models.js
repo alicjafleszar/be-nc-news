@@ -2,7 +2,6 @@ const db = require('../db/connection')
 const { checkIfExists } = require('../utils/utils')
 
 exports.selectArticleById = (article_id) => {
-    if(!Number.isInteger(+article_id)) return Promise.reject({ status: 400, msg: 'Invalid Request' })
     return Promise.all([
         checkIfExists('articles', 'article_id', article_id),
         db.query(`
@@ -27,7 +26,6 @@ exports.selectArticles = () => {
 }
 
 exports.selectCommentsByArticleId = (article_id) => {
-    if(!Number.isInteger(+article_id)) return Promise.reject({ status: 400, msg: 'Invalid Request' })
     return Promise.all([
         checkIfExists('articles', 'article_id', article_id),
         db.query(`
