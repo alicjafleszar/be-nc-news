@@ -2,6 +2,7 @@ const express = require('express')
 const topicsRouter = require('./topics')
 const articlesRouter = require('./articles')
 const { getEndpointsInfo } = require('./controllers')
+const commentsRouter = require('./comments')
 
 const app = express()
 app.use(express.json())
@@ -15,6 +16,8 @@ router.get('/', getEndpointsInfo)
 router.use('/topics', topicsRouter)
 
 router.use('/articles', articlesRouter)
+
+router.use('/comments', commentsRouter)
 
 app.all('*', (req, res, next) => {
     err = {status: 404, msg: 'Not Found'}

@@ -234,6 +234,34 @@ describe('POST requests', () =>{
     })
 })
 
+describe('DELETE requests', () => {
+    describe('/api/comments/:comment_id', () => {
+        describe('DELETE - status 204 - No Content', () => {
+            test('deletes a comment with the given comment ID', () => {
+                return request(app)
+                    .delete('/api/comments/5')
+                    .expect(204)
+                    .then(() => {
+                        return request(app)
+                            .get('/api/comments/5')
+                            .expect(404)
+                            .then(({ body: { msg } }) => {
+                                expect(msg).toBe('Not Found')
+                            })
+                    })
+            })
+            test('responds with status 204 and "No Content" message', () => {
+                return request(app)
+                    .delete('/api/comments/5')
+                    .expect(204)
+                    .then(({ res: { statusMessage } }) => {
+                        expect(statusMessage).toBe('No Content')
+                    })
+            })
+        })
+    })
+})
+
 describe('Error handling tests', () => {
     describe('/*', () => {
         describe('GET - status 404 - invalid path', () => {
@@ -351,6 +379,28 @@ describe('Error handling tests', () => {
                     .expect(404)
                     .then(({ body: { msg } }) => {
                         expect(msg).toBe('Not Found')
+                    })
+            })
+        })
+    })
+    describe('/api/comments/:comment_id', () => {
+        describe('DELETE - status 404 - not found', () => {
+            test('responds with 404 erroor code and error message if requested comment ID was not found', () => {
+                return request(app)
+                    .delete('/api/comments/50')
+                    .expect(404)
+                    .then(({ body: { msg } }) => {
+                        expect(msg).toBe('Not Found')
+                    })
+            })
+        })
+        describe('DELETE - status 400 - invalid comment ID', () => {
+            xtest('responds responds with 400 error code and error message if requested comment ID was invalid', () => {
+                return request(app)
+                    .delete('/api/comments/comment3')
+                    .expect(400)
+                    .then(({ body: { msg } }) => {
+                        expect(msg).toBe('Invalid Request')
                     })
             })
         })
