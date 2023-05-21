@@ -384,18 +384,18 @@ describe('Error handling tests', () => {
         })
     })
     describe('/api/comments/:comment_id', () => {
-        // describe('DELETE - status 404 - not found', () => {
-        //     test('responds with 404 erroor code and error message if requested comment ID was not found', () => {
-        //         return request(app)
-        //             .delete('/api/comments/50')
-        //             .expect(404)
-        //             .then(({ body: { msg } }) => {
-        //                 expect(msg).toBe('Not Found')
-        //             })
-        //     })
-        // })
+        describe('DELETE - status 404 - not found', () => {
+            test('responds with 404 erroor code and error message if requested comment ID was not found', () => {
+                return request(app)
+                    .delete('/api/comments/250')
+                    .expect(404)
+                    .then(({ body: { msg } }) => {
+                        expect(msg).toBe('Not Found')
+                    })
+            })
+        })
         describe('DELETE - status 400 - invalid comment ID', () => {
-            xtest('responds responds with 400 error code and error message if requested comment ID was invalid', () => {
+            test('responds responds with 400 error code and error message if requested comment ID was invalid', () => {
                 return request(app)
                     .delete('/api/comments/comment3')
                     .expect(400)
