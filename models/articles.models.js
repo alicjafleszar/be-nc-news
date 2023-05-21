@@ -48,3 +48,15 @@ exports.insertComment = ({ username, body }, article_id) => {
         db.query(insertCommentQueryStr)
     ]).then(([exists, { rows }]) => rows[0])
 }
+
+exports.updateArticle = (inc_votes, article_id) => {
+    return Promise.all([
+        checkIfExists('articles', 'article_id', article_id),
+        db.query(`
+            UPDATE articles 
+            SET votes = $1 
+            WHERE article_id = ${article_id} 
+            RETURNING *;
+        `, [inc_votes])
+    ]).then(([ exists, { rows } ]) => rows[0])
+}
