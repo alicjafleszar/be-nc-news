@@ -100,6 +100,35 @@ describe('GET requests', () => {
             })
         })
     })
+    describe('/api/users', () => {
+        describe('GET - status 200 - responds with an array of user objects', () => {
+            test('responds with an array of objects', () => {
+                return request(app)
+                    .get('/api/users')
+                    .expect(200)
+                    .then(({ body: { users } }) => {
+                        expect(users).toHaveLength(4)
+                        users.forEach(user => expect(typeof user).toBe('object'))
+                    })
+            })
+            test('each object in returned array has "username", "name" and "avatar_url" properties', () => {
+                return request(app)
+                    .get('/api/users')
+                    .expect(200)
+                    .then(({ body: { users } }) => {
+                        users.forEach(user => {
+                            expect(user).toMatchObject(
+                                expect.objectContaining({
+                                    username: expect.any(String),
+                                    name: expect.any(String),
+                                    avatar_url: expect.any(String)
+                                })
+                            )
+                        })
+                    })
+            })
+        })
+    })
     describe('/api/articles/:article_id', () => {
         describe('GET - status 200 - responds with a single object', () => {
             test('responds with an object with article_id matching requested id parameter', () => {
