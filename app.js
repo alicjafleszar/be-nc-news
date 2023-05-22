@@ -28,7 +28,7 @@ app.all('*', (req, res, next) => {
 })
 
 app.use((err, req, res, next) => {
-    if (['23502', '22P02'].includes(err.code)) {
+    if (['23502', '22P02', '42703'].includes(err.code)) {
         res.status(400).send({msg: 'Invalid Request'})
     } else if (err.code === '23503'){
         res.status(404).send({msg: 'Not Found'})

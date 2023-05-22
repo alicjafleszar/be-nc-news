@@ -13,17 +13,33 @@ exports.selectArticleById = (article_id) => {
     ]).then(([ exists, { rows } ]) => rows[0])
 }
 
-exports.selectArticles = () => {
+exports.selectArticles = ({ sort_by = 'created_at', order = 'desc', topic }) => {
+    if (!['asc', 'desc'].includes(order)) return Promise.reject({ 
+        status: 400,
+        msg: 'Invalid Request'
+     })
+    const selectArticlesQueryStr = format(`
+        SELECT articles.article_id, articles.author, articles.title, articles.topic, articles.created_at, articles.article_img_url, articles.votes, COUNT(comments.article_id)::INTEGER AS comment_count
+        FROM articles
+        FULL JOIN comments
+        ON articles.article_id = comments.article_id
+        ${topic ? 'WHERE articles.topic = $1' : ''}
+        GROUP BY articles.article_id
+        ORDER BY articles.%I ${order};
+    `, [sort_by])
     return db
-        .query(`
-            SELECT articles.article_id, articles.author, articles.title, articles.topic, articles.created_at, articles.article_img_url, articles.votes, COUNT(comments.article_id)::INTEGER AS comment_count
-            FROM articles
-            FULL JOIN comments
-            ON articles.article_id = comments.article_id
-            GROUP BY articles.article_id
-            ORDER BY articles.created_at DESC;
-        `)
-        .then(({ rows }) => rows)
+        .query('SELECT slug FROM topics;')
+        .then(({ rows }) => {
+            if (topic && !rows.map(topic => topic.slug).includes(topic)) return Promise.reject({ 
+                status: 404,
+                msg: 'Not Found'
+             })
+        })
+        .then(() => {
+            return db.query(selectArticlesQueryStr, topic ? [topic] : null)
+            .then(({ rows }) => rows)
+        })
+        
 }
 
 exports.selectCommentsByArticleId = (article_id) => {

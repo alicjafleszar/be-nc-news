@@ -8,9 +8,10 @@ exports.getArticleById = (req, res, next) => {
 }
 
 exports.getArticles = (req, res, next) => {
-    selectArticles()
+    const { query } = req
+    selectArticles(query)
         .then(articles => res.status(200).send({ articles }))
-            .catch(err => next(err))
+        .catch(err => next(err))
 }
 
 exports.getCommentsByArticleId = (req, res, next) => {

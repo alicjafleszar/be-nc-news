@@ -61,7 +61,7 @@ describe('GET requests', () => {
         })
     })
     describe('/api/articles', () => {
-        describe('GET - status 200 - responds with an array of article objects', () => {
+        describe('GET - status 200 - responds with an array of all article objects if no queries are provided', () => {
             test('responds with an array of objects, each of them containing "author", "title", "article_id", "topic", "created_at", "votes", "article_img_url" and "comment_count" but not including "body" property', () => {
                 return request(app)
                     .get('/api/articles')
@@ -95,6 +95,107 @@ describe('GET requests', () => {
                         expect(articles).toBeSorted({
                             key: 'created_at',
                             descending: true
+                        })
+                    })
+            })
+            test('accepts "sort_by" query and sorts articles by any valid column', () => {
+                return request(app)
+                    .get('/api/articles')
+                    .query({ sort_by: 'votes' })
+                    .expect(200)
+                    .then(({ body: { articles } }) => {
+                        expect(articles).toBeSorted({
+                            key: 'votes',
+                            descending: true
+                        })
+                    })
+                    .then(() => {
+                        return request(app)
+                            .get('/api/articles')
+                            .query({ sort_by: 'title' })
+                            .expect(200)
+                            .then(({ body: { articles } }) => {
+                                expect(articles).toBeSorted({
+                                    key: 'title',
+                                    descending: true
+                                })
+                            })
+                    })
+                    .then(() => {
+                        return request(app)
+                            .get('/api/articles')
+                            .query({ sort_by: 'author' })
+                            .expect(200)
+                            .then(({ body: { articles } }) => {
+                                expect(articles).toBeSorted({
+                                    key: 'author',
+                                    descending: true
+                                })
+                            })
+                    })
+            })
+            test('accepts "order" query set to either "asc" or "desc" which determines the sorting order', () => {
+                return request(app)
+                    .get('/api/articles')
+                    .query({ order: 'asc' })
+                    .expect(200)
+                    .then(({ body: { articles } }) => {
+                        expect(articles).toBeSorted({
+                            key: 'created_at',
+                            descending: false
+                        })
+                    })
+                    .then(() => {
+                        return request(app)
+                            .get('/api/articles')
+                            .query({ order: 'desc' })
+                            .expect(200)
+                            .then(({ body: { articles } }) => {
+                                expect(articles).toBeSorted({
+                                    key: 'created_at',
+                                    descending: true
+                                })
+                            })
+                    })
+            })
+            test('accepts "topic" query and filters articles by the specified topic value', () => {
+                return request(app)
+                    .get('/api/articles')
+                    .query({ topic: 'cats' })
+                    .expect(200)
+                    .then(({ body: { articles } }) => {
+                        expect(articles).toHaveLength(1)
+                        articles.forEach(article => {
+                            expect(article).toHaveProperty('topic', 'cats')
+                        })
+                    })
+                    .then(() => {
+                        return request(app)
+                            .get('/api/articles')
+                            .query({ topic: 'paper' })
+                            .expect(200)
+                            .then(({ body: { articles } }) => {
+                                expect(articles).toHaveLength(0)
+                            })
+                    })
+            })
+            test('accepts multiple queries', () => {
+                return request(app)
+                    .get('/api/articles')
+                    .query({
+                        topic: 'mitch',
+                        sort_by: 'title',
+                        order: 'asc'
+                    })
+                    .expect(200)
+                    .then(({ body: { articles } }) => {
+                        expect(articles).toHaveLength(11)
+                        articles.forEach(article => {
+                            expect(article).toHaveProperty('topic', 'mitch')
+                        })
+                        expect(articles).toBeSorted({
+                            key: 'title',
+                            descending: false
                         })
                     })
             })
@@ -415,6 +516,37 @@ describe('Error handling tests', () => {
                         "username": "lurker",
                         "body": "cool article"
                     })
+                    .expect(400)
+                    .then(({ body: { msg } }) => {
+                        expect(msg).toBe('Invalid Request')
+                    })
+            })
+        })
+    })
+    describe('/api/articles', () => {
+        describe('Status 404 - value specified in a query not found', () => {
+            test('GET - / - respods with 404 error code and error message if topic value does not exists', () => {
+                return request(app)
+                    .get('/api/articles')
+                    .query({ topic: 'music' })
+                    .expect(404)
+                    .then(({ body: { msg } }) => {
+                        expect(msg).toBe('Not Found')
+                    })
+            })
+            test('GET - / - respods with 400 error code and error message if column specified in "sort_by" query does not exists', () => {
+                return request(app)
+                    .get('/api/articles')
+                    .query({ sort_by: 'nonsense' })
+                    .expect(400)
+                    .then(({ body: { msg } }) => {
+                        expect(msg).toBe('Invalid Request')
+                    })
+            })
+            test('GET - / - respods with 400 error code and error message if "order" query is set to value other than "desc" or "asc"', () => {
+                return request(app)
+                    .get('/api/articles')
+                    .query({ order: 'nonsense' })
                     .expect(400)
                     .then(({ body: { msg } }) => {
                         expect(msg).toBe('Invalid Request')
