@@ -29,7 +29,7 @@ exports.selectArticles = ({ sort_by = 'created_at', order = 'desc', topic }) => 
         ON articles.article_id = comments.article_id
         ${topic ? 'WHERE articles.topic = $1' : ''}
         GROUP BY articles.article_id
-        ORDER BY articles.%I ${order};
+        ORDER BY %I ${order};
     `, [sort_by])
     return db
         .query('SELECT slug FROM topics;')
