@@ -244,7 +244,8 @@ describe('GET requests', () => {
                         expect(article).toHaveProperty('body', 'I find this existence challenging')
                         expect(article).toHaveProperty('created_at', expect.any(String))
                         expect(article).toHaveProperty('votes', 100)
-                        expect(article).toHaveProperty('article_img_url', 'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700')
+                        expect(article).toHaveProperty('article_img_url', 'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700'),
+                        expect(article).toHaveProperty('comment_count', 11)
                     })
             })
         })
@@ -381,7 +382,8 @@ describe('PATCH requests', () => {
                             body: 'some gifs',
                             created_at: expect.any(String),
                             votes: 5,
-                            article_img_url: 'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700'
+                            article_img_url: 'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700',
+                            comment_count: 2
                         }))
                     })
             })

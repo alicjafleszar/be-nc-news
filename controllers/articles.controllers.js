@@ -3,8 +3,8 @@ const { selectArticles, selectArticleById, selectCommentsByArticleId, insertComm
 exports.getArticleById = (req, res, next) => {
     const { article_id } = req.params
     selectArticleById(article_id)
-        .then(article => res.status(200).send({ article }))
-            .catch(err => next(err))
+    .then(article => res.status(200).send({ article }))
+    .catch(err => next(err))
 }
 
 exports.getArticles = (req, res, next) => {

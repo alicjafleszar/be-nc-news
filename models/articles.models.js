@@ -6,8 +6,12 @@ exports.selectArticleById = (article_id) => {
     return Promise.all([
         checkIfExists('articles', 'article_id', article_id),
         db.query(`
-            SELECT * FROM articles
-            WHERE article_id = $1;`,
+            SELECT articles.*, COUNT(comments.article_id)::INTEGER AS comment_count
+            FROM articles
+            FULL JOIN comments
+            ON articles.article_id = comments.article_id
+            WHERE articles.article_id = $1
+            GROUP BY articles.article_id;`,
             [ article_id ]
         )
     ]).then(([ exists, { rows } ]) => rows[0])
@@ -72,7 +76,10 @@ exports.updateArticle = (inc_votes, article_id) => {
             UPDATE articles 
             SET votes = $1 
             WHERE article_id = ${article_id} 
-            RETURNING *;
+            RETURNING *,
+                (SELECT COUNT(*)
+                FROM comments
+                WHERE comments.article_id = articles.article_id)::INTEGER AS comment_count;
         `, [inc_votes])
     ]).then(([ exists, { rows } ]) => rows[0])
 }
