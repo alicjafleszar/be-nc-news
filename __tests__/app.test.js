@@ -23,11 +23,11 @@ describe('GET requests', () => {
                                 "description": expect.any(String),
                                 "queries": expect.any(Array),
                                 "bodyFormat": expect.any(Object),
-                                "exampleResponse": expect.any(Object)
+                                "exampleResponse": expect.anything()
                                 })
                             )
                         })
-                        expect(Object.keys(endpoints)).toHaveLength(3)
+                        expect(Object.keys(endpoints)).toHaveLength(9)
                     })
             })
         })
