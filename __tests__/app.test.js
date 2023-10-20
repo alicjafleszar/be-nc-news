@@ -27,7 +27,7 @@ describe('GET requests', () => {
                                 })
                             )
                         })
-                        expect(Object.keys(endpoints)).toHaveLength(12)
+                        expect(Object.keys(endpoints)).toHaveLength(13)
                     })
             })
         })
