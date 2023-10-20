@@ -27,7 +27,7 @@ describe('GET requests', () => {
                                 })
                             )
                         })
-                        expect(Object.keys(endpoints)).toHaveLength(10)
+                        expect(Object.keys(endpoints)).toHaveLength(11)
                     })
             })
         })
@@ -418,7 +418,7 @@ describe('PATCH requests', () => {
         })
     })
     describe('/api/comments/:comment_id', () => {
-        describe.only('PATCH - status 200 - responds with updated comment', () => {
+        describe('PATCH - status 200 - responds with updated comment', () => {
             test('responds with the updated comment if request body contains an object with inc_votes property holding a number', () => {
                 return request(app)
                     .patch('/api/comments/1')
