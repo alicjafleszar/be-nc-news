@@ -69,6 +69,20 @@ exports.insertComment = ({ username, body }, article_id) => {
     ]).then(([exists, { rows }]) => rows[0])
 }
 
+exports.insertArticle = ({author, title, body, topic, article_img_url}) => {
+    const insertArticleQueryStr = format(
+        `INSERT INTO articles (author, title, body, topic, article_img_url) VALUES %L RETURNING *,
+        (SELECT COUNT(*)
+        FROM comments
+        WHERE comments.article_id = articles.article_id)::INTEGER AS comment_count;;`,
+        [[ author, title, body, topic, article_img_url ]]
+        )
+    return Promise.all([
+        checkIfExists('topics', 'slug', topic),
+        db.query(insertArticleQueryStr)
+    ]).then(([exists, { rows }]) => rows[0])
+}
+
 exports.updateArticle = (inc_votes, article_id) => {
     return Promise.all([
         checkIfExists('articles', 'article_id', article_id),

@@ -1,4 +1,4 @@
-const { selectArticles, selectArticleById, selectCommentsByArticleId, insertComment, updateArticle } = require('../models')
+const { selectArticles, selectArticleById, selectCommentsByArticleId, insertComment, updateArticle, insertArticle } = require('../models')
 
 exports.getArticleById = (req, res, next) => {
     const { article_id } = req.params
@@ -28,6 +28,13 @@ exports.postComment = (req, res, next) => {
         .then(comment => res.status(201).send({ comment }))
         .catch(err => next(err))
     }
+
+exports.postArticle = (req, res, next) => {
+    const newArticleData = req.body
+    insertArticle(newArticleData)
+        .then(article => res.status(201).send({ article }))
+        .catch(err => next(err))
+}
     
 exports.patchArticle = (req, res, next) => {
     const { inc_votes } = req.body

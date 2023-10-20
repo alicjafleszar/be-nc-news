@@ -27,7 +27,7 @@ describe('GET requests', () => {
                                 })
                             )
                         })
-                        expect(Object.keys(endpoints)).toHaveLength(11)
+                        expect(Object.keys(endpoints)).toHaveLength(12)
                     })
             })
         })
@@ -372,6 +372,84 @@ describe('POST requests', () =>{
                                         comment
                                     ])
                                 )
+                        })
+                })
+            })
+        })
+    })
+    describe('/api/articles', () => {
+        describe('POST - status 201 - responds with an added article', () => {
+            test('responds with a posted article if request body is provided an object with author, title, body, topic and article_img_url properties', () => {
+                const newArticle = {
+                    "author": "lurker",
+                    "title": "title",
+                    "body": "a very cool body of an article",
+                    "topic": "mitch",
+                    "article_img_url": "http://something_cool.com/cool_image"
+                }
+                return request(app)
+                    .post('/api/articles')
+                    .send(newArticle)
+                    .expect(201)
+                    .then(({ body: { article } }) => {
+                        expect(article).toMatchObject(expect.objectContaining({
+                            article_id: 13,
+                            author: "lurker",
+                            title: "title",
+                            body: "a very cool body of an article",
+                            topic: "mitch",
+                            article_img_url: "http://something_cool.com/cool_image",
+                            votes: 0,
+                            created_at: expect.any(String),
+                            comment_count: 0
+                        }))
+                    })
+            })
+            test('ignores unnecessary properties on request body object', () => {
+                const newArticle = {
+                    "author": "lurker",
+                    "title": "title",
+                    "body": "a very cool body of an article",
+                    "topic": "mitch",
+                    "article_img_url": "http://something_cool.com/cool_image",
+                    "votes": 500
+                }
+                return request(app)
+                    .post('/api/articles')
+                    .send(newArticle)
+                    .expect(201)
+                    .then(({ body: { article } }) => {
+                        expect(article).toMatchObject(expect.objectContaining({
+                            article_id: 13,
+                            author: "lurker",
+                            title: "title",
+                            body: "a very cool body of an article",
+                            topic: "mitch",
+                            article_img_url: "http://something_cool.com/cool_image",
+                            votes: 0,
+                            created_at: expect.any(String),
+                            comment_count: 0
+                        }))
+                    })
+            })
+            test('adds a new article to articles table', () => {
+                const newArticle = {
+                    "author": "lurker",
+                    "title": "title",
+                    "body": "a very cool body of an article",
+                    "topic": "mitch",
+                    "article_img_url": "http://something_cool.com/cool_image"
+                }
+                return request(app)
+                    .post('/api/articles')
+                    .send(newArticle)
+                    .expect(201)
+                    .then(({ body: { article } }) => {
+                        return request(app)
+                            .get('/api/articles/13')
+                            .expect(200)
+                            .then(({ body: { article: newArticle } }) => {
+                                expect(article).toEqual(newArticle)
                         })
                 })
             })
