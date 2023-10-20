@@ -160,5 +160,27 @@
         "votes": 19
         }
     }
+  },
+  "POST /api/articles": {
+    "description": "inserts a new article into the database and responds with the added article",
+    "queries": [],
+    "bodyFormat": {
+      "author": "lurker",
+      "title": "title",
+      "body": "a very cool body of an article",
+      "topic": "mitch",
+      "article_img_url": "http://something_cool.com/cool_image"
+  },
+    "exampleResponse": {
+      "article_id": 13,
+      "author": "lurker",
+      "title": "title",
+      "body": "a very cool body of an article",
+      "topic": "mitch",
+      "article_img_url": "http://something_cool.com/cool_image",
+      "votes": 0,
+      "created_at": "2020-11-23T17:00:00.000Z",
+      "comment_count": 0
+    }
   }
 }
