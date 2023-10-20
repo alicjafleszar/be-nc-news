@@ -293,6 +293,20 @@ describe('GET requests', () => {
             })
         })
     })
+    describe('/api/users/:username', () => {
+        describe('GET - status 200 - responds with a single object', () => {
+            test('responds with an object with username matching requested parameter', () => {
+                return request(app)
+                    .get('/api/users/butter_bridge')
+                    .expect(200)
+                    .then(({ body: { user } }) => {
+                        expect(user).toHaveProperty('username', 'butter_bridge')
+                        expect(user).toHaveProperty('name', 'jonny')
+                        expect(user).toHaveProperty('avatar_url', 'https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg')
+                    })
+            })
+        })
+    })
 })
 
 describe('POST requests', () =>{
