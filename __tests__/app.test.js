@@ -27,7 +27,7 @@ describe('GET requests', () => {
                                 })
                             )
                         })
-                        expect(Object.keys(endpoints)).toHaveLength(10)
+                        expect(Object.keys(endpoints)).toHaveLength(11)
                     })
             })
         })
@@ -414,6 +414,26 @@ describe('PATCH requests', () => {
                                 expect(updatedArticle).toEqual(update)
                         })
                 })
+            })
+        })
+    })
+    describe('/api/comments/:comment_id', () => {
+        describe('PATCH - status 200 - responds with updated comment', () => {
+            test('responds with the updated comment if request body contains an object with inc_votes property holding a number', () => {
+                return request(app)
+                    .patch('/api/comments/1')
+                    .send({ inc_votes: 1 })
+                    .expect(200)
+                    .then(({ body: { comment } }) => {
+                        expect(comment).toMatchObject(expect.objectContaining({
+                            comment_id: 1,
+                            article_id: 9,
+                            author: 'butter_bridge',
+                            body: 'Oh, I\'ve got compassion running out of my nose, pal! I\'m the Sultan of Sentiment!',
+                            created_at: expect.any(String),
+                            votes: 17
+                        }))
+                    })
             })
         })
     })
