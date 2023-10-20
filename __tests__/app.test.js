@@ -417,6 +417,26 @@ describe('PATCH requests', () => {
             })
         })
     })
+    describe('/api/comments/:comment_id', () => {
+        describe.only('PATCH - status 200 - responds with updated comment', () => {
+            test('responds with the updated comment if request body contains an object with inc_votes property holding a number', () => {
+                return request(app)
+                    .patch('/api/comments/1')
+                    .send({ inc_votes: 1 })
+                    .expect(200)
+                    .then(({ body: { comment } }) => {
+                        expect(comment).toMatchObject(expect.objectContaining({
+                            comment_id: 1,
+                            article_id: 9,
+                            author: 'butter_bridge',
+                            body: 'Oh, I\'ve got compassion running out of my nose, pal! I\'m the Sultan of Sentiment!',
+                            created_at: expect.any(String),
+                            votes: 17
+                        }))
+                    })
+            })
+        })
+    })
 })
 
 describe('DELETE requests', () => {
