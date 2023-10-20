@@ -97,3 +97,10 @@ exports.updateArticle = (inc_votes, article_id) => {
         `, [inc_votes])
     ]).then(([ exists, { rows } ]) => rows[0])
 }
+
+exports.removeArticle = (article_id) => {
+    return checkIfExists('articles', 'article_id', article_id)
+        .then(() => {
+            return db.query(`DELETE FROM articles WHERE article_id = $1;`, [article_id])
+        })
+}
