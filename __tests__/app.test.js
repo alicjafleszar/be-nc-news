@@ -543,6 +543,31 @@ describe('DELETE requests', () => {
             })
         })
     })
+    describe('/api/articles/:article_id', () => {
+        describe('DELETE - status 204 - No Content', () => {
+            test('deletes an article with the given article ID', () => {
+                return request(app)
+                    .delete('/api/articles/1')
+                    .expect(204)
+                    .then(() => {
+                        return request(app)
+                            .get('/api/articles/1')
+                            .expect(404)
+                            .then(({ body: { msg } }) => {
+                                expect(msg).toBe('Not Found')
+                            })
+                    })
+            })
+            test('responds with status 204 and "No Content" message', () => {
+                return request(app)
+                    .delete('/api/articles/1')
+                    .expect(204)
+                    .then(({ res: { statusMessage } }) => {
+                        expect(statusMessage).toBe('No Content')
+                    })
+            })
+        })
+    })
 })
 
 describe('Error handling tests', () => {
