@@ -27,7 +27,7 @@ describe('GET requests', () => {
                                 })
                             )
                         })
-                        expect(Object.keys(endpoints)).toHaveLength(11)
+                        expect(Object.keys(endpoints)).toHaveLength(12)
                     })
             })
         })
@@ -377,7 +377,7 @@ describe('POST requests', () =>{
             })
         })
     })
-    describe.only('/api/articles', () => {
+    describe('/api/articles', () => {
         describe('POST - status 201 - responds with an added article', () => {
             test('responds with a posted article if request body is provided an object with author, title, body, topic and article_img_url properties', () => {
                 const newArticle = {
