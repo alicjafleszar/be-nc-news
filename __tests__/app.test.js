@@ -285,6 +285,7 @@ describe('GET requests', () => {
             test('responds with an array of comments for the given article_id of which each comment should have "comment_id", "votes", "created_at", "author", "body" and "article_id" properties', () => {
                 return request(app)
                     .get('/api/articles/1/comments')
+                    .query({ limit: 100 })
                     .expect(200)
                     .then(({ body: { comments } }) => {
                         expect(comments).toHaveLength(11)
@@ -319,6 +320,28 @@ describe('GET requests', () => {
                             key: 'created_at',
                             descending: true
                         })
+                    })
+            })
+        })
+        describe('GET - status 200 - accepts queries', () => {
+            test('accepts "limit" (defaults to 10) and "p" (start page, defaults to 1) queries and limits the number of responses', () => {
+                return request(app)
+                    .get('/api/articles/1/comments')
+                    .query({ 
+                        limit: 6,
+                        p: 2 
+                    })
+                    .expect(200)
+                    .then(({ body: { comments } }) => {
+                        expect(comments).toHaveLength(5)
+                    })
+                    .then(() => {
+                        return request(app)
+                            .get('/api/articles/1/comments')
+                            .expect(200)
+                            .then(({ body: { comments } }) => {
+                                expect(comments).toHaveLength(10)
+                            })
                     })
             })
         })
