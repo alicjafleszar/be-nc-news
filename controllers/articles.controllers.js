@@ -10,13 +10,14 @@ exports.getArticleById = (req, res, next) => {
 exports.getArticles = (req, res, next) => {
     const { query } = req
     selectArticles(query)
-        .then(articles => res.status(200).send(articles))
-        .catch(err => next(err))
+    .then(articles => res.status(200).send(articles))
+    .catch(err => next(err))
 }
 
 exports.getCommentsByArticleId = (req, res, next) => {
+    const { query } = req
     const { article_id } = req.params
-    selectCommentsByArticleId(article_id)
+    selectCommentsByArticleId(query, article_id)
         .then(comments => res.status(200).send({ comments }))
         .catch(err => next(err))
 }

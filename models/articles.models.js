@@ -58,13 +58,15 @@ exports.selectArticles = ({ sort_by = 'created_at', order = 'desc', topic, limit
         
 }
 
-exports.selectCommentsByArticleId = (article_id) => {
+exports.selectCommentsByArticleId = ({ limit = 10, p = 1 }, article_id) => {
     return Promise.all([
         checkIfExists('articles', 'article_id', article_id),
         db.query(`
             SELECT * FROM comments
             WHERE article_id = $1
-            ORDER BY created_at DESC;`,
+            ORDER BY created_at DESC
+            OFFSET ${(p - 1) * limit} ROWS
+            FETCH NEXT ${limit} ROWS ONLY;`,
             [ article_id ]
         )
     ]).then(([exists, { rows }]) => rows)
