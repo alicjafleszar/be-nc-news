@@ -1,4 +1,4 @@
-const { selectTopics } = require("../models")
+const { selectTopics, insertTopic } = require("../models")
 
 exports.getTopics = (req, res, next) => {
     selectTopics()
@@ -6,4 +6,11 @@ exports.getTopics = (req, res, next) => {
         .catch(err => {
             next(err)
         })
+}
+
+exports.postTopic = (req, res, next) => {
+    const newTopicData = req.body
+    insertTopic(newTopicData)
+        .then(topic => res.status(201).send({ topic }))
+        .catch(err => next(err))
 }
