@@ -455,6 +455,43 @@ describe('POST requests', () =>{
             })
         })
     })
+    describe('/api/topics', () => {
+        describe('POST - status 201 - responds with an added topic', () => {
+            test('responds with a posted topic if request body is provided an object with slug and description properties', () => {
+                const newTopic = {
+                    "slug": "crafts",
+                    "description": "all things crafting"
+                }
+                return request(app)
+                    .post('/api/topics')
+                    .send(newTopic)
+                    .expect(201)
+                    .then(({ body: { topic } }) => {
+                        expect(topic).toMatchObject(expect.objectContaining({
+                            "slug": "crafts",
+                            "description": "all things crafting"
+                        }))
+                    })
+            })
+            test('ignores unnecessary properties on request body object', () => {
+                const newTopic = {
+                    "slug": "crafts",
+                    "description": "all things crafting",
+                    "extra": "something extra"
+                }
+                return request(app)
+                    .post('/api/topics')
+                    .send(newTopic)
+                    .expect(201)
+                    .then(({ body: { topic } }) => {
+                        expect(topic).toMatchObject(expect.objectContaining({
+                            "slug": "crafts",
+                            "description": "all things crafting"
+                        }))
+                    })
+            })
+        })
+    })
 })
 
 describe('PATCH requests', () => {
