@@ -46,13 +46,17 @@ exports.selectArticles = ({ sort_by = 'created_at', order = 'desc', topic, limit
             return db.query(selectArticlesQueryStr, topic ? [topic] : null)
             .then(({ rows }) => {
                 return Promise.all([
-                    rows, 
+                    rows,
+                    p,
                     db.query(`SELECT COUNT(*) FROM articles ${topic ? 'WHERE articles.topic = $1' : ''};`, topic ? [topic] : null)
                 ])
             })
-            .then(([articles, { rows }]) => {
+            .then(([articles, page, { rows }]) => {
                 const total_count = rows[0].count
-                return { total_count, articles }
+                const results_on_page = articles.length
+                const total_pages = Math.ceil(total_count / limit)
+                
+                return { total_count, page, total_pages, results_on_page, articles }
             })
         })
         
