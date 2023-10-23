@@ -10,7 +10,7 @@ exports.getArticleById = (req, res, next) => {
 exports.getArticles = (req, res, next) => {
     const { query } = req
     selectArticles(query)
-        .then(articles => res.status(200).send({ articles }))
+        .then(articles => res.status(200).send(articles))
         .catch(err => next(err))
 }
 

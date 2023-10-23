@@ -65,6 +65,7 @@ describe('GET requests', () => {
             test('responds with an array of objects, each of them containing "author", "title", "article_id", "topic", "created_at", "votes", "article_img_url" and "comment_count" but not including "body" property', () => {
                 return request(app)
                     .get('/api/articles')
+                    .query({ limit: 100 })
                     .expect(200)
                     .then(({ body: { articles } }) => {
                         expect(articles).toHaveLength(12)
@@ -179,10 +180,39 @@ describe('GET requests', () => {
                             })
                     })
             })
+            test('accepts "limit" (defaults to 10) and "p" (start page, defaults to 1) queries and limits the number of responses', () => {
+                return request(app)
+                    .get('/api/articles')
+                    .query({ 
+                        sort_by: 'article_id',
+                        order: 'asc',
+                        limit: 5,
+                        p: 2 
+                    })
+                    .expect(200)
+                    .then(({ body: { articles } }) => {
+                        expect(articles).toHaveLength(5)
+                        expect(articles[0].article_id).toBe(6)
+                    })
+                    .then(() => {
+                        return request(app)
+                            .get('/api/articles')
+                            .query({
+                                sort_by: 'article_id',
+                                order: 'asc'
+                            })
+                            .expect(200)
+                            .then(({ body: { articles } }) => {
+                                expect(articles).toHaveLength(10)
+                                expect(articles[0].article_id).toBe(1)
+                            })
+                    })
+            })
             test('accepts multiple queries', () => {
                 return request(app)
                     .get('/api/articles')
                     .query({
+                        limit: 100,
                         topic: 'mitch',
                         sort_by: 'title',
                         order: 'asc'
