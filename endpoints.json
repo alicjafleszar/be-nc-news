@@ -188,5 +188,17 @@
     "queries": [],
     "bodyFormat": {},
     "exampleResponse": "No content"
+  },
+  "POST /api/topics": {
+    "description": "inserts a new topic into the database and responds with the added topic",
+    "queries": [],
+    "bodyFormat": {
+      "slug": "crafts",
+      "description": "all things crafting"
+  },
+    "exampleResponse": {
+      "slug": "crafts",
+      "description": "all things crafting"
+    }
   }
 }
