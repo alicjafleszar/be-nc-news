@@ -17,8 +17,8 @@ exports.selectArticleById = (article_id) => {
     ]).then(([ exists, { rows } ]) => rows[0])
 }
 
-exports.selectArticles = ({ sort_by = 'created_at', order = 'desc', topic }) => {
-    if (!['asc', 'desc'].includes(order)) return Promise.reject({ 
+exports.selectArticles = ({ sort_by = 'created_at', order = 'desc', topic, limit = 10, p = 1 }) => {
+    if (!['asc', 'desc'].includes(order) || isNaN(limit) || isNaN(p)) return Promise.reject({ 
         status: 400,
         msg: 'Invalid Request'
      })
@@ -29,8 +29,11 @@ exports.selectArticles = ({ sort_by = 'created_at', order = 'desc', topic }) => 
         ON articles.article_id = comments.article_id
         ${topic ? 'WHERE articles.topic = $1' : ''}
         GROUP BY articles.article_id
-        ORDER BY %I ${order};
+        ORDER BY %I ${order}
+        OFFSET ${(p - 1) * limit} ROWS
+        FETCH NEXT ${limit} ROWS ONLY;
     `, [sort_by])
+
     return db
         .query('SELECT slug FROM topics;')
         .then(({ rows }) => {
@@ -41,7 +44,16 @@ exports.selectArticles = ({ sort_by = 'created_at', order = 'desc', topic }) => 
         })
         .then(() => {
             return db.query(selectArticlesQueryStr, topic ? [topic] : null)
-            .then(({ rows }) => rows)
+            .then(({ rows }) => {
+                return Promise.all([
+                    rows, 
+                    db.query(`SELECT COUNT(*) FROM articles ${topic ? 'WHERE articles.topic = $1' : ''};`, topic ? [topic] : null)
+                ])
+            })
+            .then(([articles, { rows }]) => {
+                const total_count = rows[0].count
+                return { total_count, articles }
+            })
         })
         
 }
